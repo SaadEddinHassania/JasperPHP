@@ -137,6 +137,55 @@ class JasperPHP
         return $this;
     }
 
+
+    public function processXML($input_file, $output_file = false,  $format = array("pdf"),$data_file,$xml_xpath = "/Model/Children/Child", $background = true, $redirect_output = true)
+    {
+        if(is_null($input_file) || empty($input_file))
+            throw new \Exception("No input file", 1);
+
+        if(is_null($data_file) || empty($data_file))
+            throw new \Exception("No data file", 1);
+
+        if( is_array($format) )
+        {
+            foreach ($format as $key)
+            {
+                if( !in_array($key, $this->formats))
+                    throw new \Exception("Invalid format!", 1);
+            }
+        } else {
+            if( !in_array($format, $this->formats))
+                throw new \Exception("Invalid format!", 1);
+        }
+
+        $command = __DIR__ . $this->executable;
+
+        $command .= " process ";
+
+        $command .= $input_file;
+
+        if( $output_file !== false )
+            $command .= " -o " . $output_file;
+
+        $command .= ' -t xml ';
+
+        $command .= " --xml-xpath ".$xml_xpath;
+
+        $command .= " --data-file ".$data_file;
+
+        if( is_array($format) )
+            $command .= " -f " . join(" ", $format);
+        else
+            $command .= " -f " . $format;
+
+        $this->redirect_output  = $redirect_output;
+        $this->background       = $background;
+        $this->the_command      = escapeshellcmd($command);
+
+        return $this;
+    }
+
+
     public function list_parameters($input_file)
     {
         if(is_null($input_file) || empty($input_file))
